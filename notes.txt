@@ -1,0 +1,9 @@
+gradle -Dprofile=normal -Drecords=100000 bootRun
+gradle -Dprofile=normal -Drecords=100000 -Drestore=true bootRun
+gradle -Dprofile=normal -Drecords=100000 -Derror=true bootRun
+gradle -Dprofile=retry -Drecords=200 bootRun
+
+
+gradle -Dprofile=normal -Drecords=150000 -Drestore=false -Derror=false -Dcores=10 -Dchunk=0.10 bootRun
+gradle -Dprofile=normal -Derror=true bootRun
+gradle -Dprofile=retry -Derror=false bootRun
