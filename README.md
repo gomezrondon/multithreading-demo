@@ -4,6 +4,7 @@ A Multithreading java demo with Spring boot, JPA, H2, JavaFaker and Kotlin
 ## 1 - Clone this repo to your machine
 ## 2 - Install gradle to run the commands
 
+### inside the project create the folder "backup"
 
 ## 3 - To do a normal run, generate 100k fake clients and calculate their avg salary
  
