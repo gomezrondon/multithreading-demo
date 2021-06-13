@@ -82,9 +82,9 @@ public class ProcessSalaryWorker implements Callable<BigDecimal> {
                     throw new RuntimeException("Something when wrong!!");
                 }
 
-                if (printNumber % 10 == 0 ) {
-                    log.info("Working Thread: "+name + " Calculating avg salary...");
-                }
+/*                if (printNumber % 10 == 0 ) {
+                   log.info("Working Thread: "+name + " Calculating avg salary...");
+                }*/
 
                 ini = tempEnd + 1;
                 printNumber++;

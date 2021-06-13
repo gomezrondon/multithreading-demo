@@ -120,13 +120,12 @@ public class ProcessingServiceImp implements ProcessingService {
     @Override
     public BigDecimal startWork(List<BatchJobId> list, int coreCount) throws InterruptedException {
 
-        ExecutorService service = Executors.newFixedThreadPool(coreCount);
+        ExecutorService service = Executors.newVirtualThreadExecutor();
         List<Callable<BigDecimal>> tasks = new ArrayList<>();
 
          int total = list.size();
-        for (int i = 0; i < total; i++) {
-            BatchJobId batchJobId = list.get(i);
-            tasks.add(new ProcessSalaryWorker(batchJobId , batchJobRepository, clientRepository, forceError, CHUNK_PERCENT));
+        for (BatchJobId batchJobId : list) {
+            tasks.add(new ProcessSalaryWorker(batchJobId, batchJobRepository, clientRepository, forceError, CHUNK_PERCENT));
         }
 
         List<Future<BigDecimal>> futures = service.invokeAll(tasks);

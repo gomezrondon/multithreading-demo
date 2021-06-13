@@ -2,7 +2,7 @@ package com.gomezrondon.multithreadingdemo.appconfig;
 
 
 
-import com.gomezrondon.fakedata.entities.WorkerKt;
+import com.github.javafaker.Faker;
 import com.gomezrondon.fakedata.utils.BackupServiceKt;
 import com.gomezrondon.multithreadingdemo.entities.BatchJob;
 import com.gomezrondon.multithreadingdemo.entities.BatchJobId;
@@ -22,8 +22,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -35,7 +44,7 @@ public class Config {
     private static final Logger log = LoggerFactory.getLogger(Config.class);
     private final ProcessingService processingService;
 
-    @Value("${app.total.records:50000}")
+    @Value("${app.total.records:10000}")
     private int totalRecords;
     @Value("${app.core.count:0}")
     private int coreCount;
@@ -132,7 +141,7 @@ public class Config {
     @Profile("normal")
     public CommandLineRunner commandLRWithExecutorService(ClientRepository clientRepository, BatchJobRepository batchJobRepository) {
         return (args) -> {
-
+            var startTime = Instant.now();
             if (restoreBackups) {
                 log.info(" ");
                 log.info("=========== Restoring Batch table  ========= ");
@@ -143,8 +152,24 @@ public class Config {
                 log.info(" ");
                 log.info("=========== Generating Fake Data ========= ");
                 log.info(" ");
-                WorkerKt wkt = new WorkerKt(totalRecords, clientRepository);
-                wkt.work();
+
+
+                var faker = new Faker(Locale.US);
+                var atomicId = new AtomicLong(0);
+                ExecutorService service = Executors.newVirtualThreadExecutor();
+                List<Callable<Client>> tasks = new ArrayList<>();
+
+                for (var i = 0; i < totalRecords; i++) {
+                    tasks.add(() -> {
+                        var salary = getRandomSalary(46000, 250000);
+                        var client = new Client(atomicId.getAndIncrement(), faker.idNumber().valid(), faker.name().fullName(), salary);
+                        clientRepository.save(client);
+                        return null;
+                    });
+                }
+
+                List<Future<Client>> futures = service.invokeAll(tasks);
+
             }
 
             log.info(" ");
@@ -202,6 +227,8 @@ public class Config {
 
                 batchTable.forEach(member -> log.info(String.valueOf(member)));
             }
+            var stopTime = Instant.now();
+           log.info(Duration.between(startTime, stopTime).toSeconds() +" - Seconds");
 
             List<Client> clientList = StreamSupport.stream(clientRepository.findAll().spliterator(), false).collect(Collectors.toList());
 
@@ -213,8 +240,14 @@ public class Config {
                 log.info("");
             }
 
+
+
         };
 
+    }
+
+    private double getRandomSalary(int min, int max) {
+        return  (Math.random() * (max - min) + min);
     }
 
 
