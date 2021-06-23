@@ -78,6 +78,14 @@ fun restoreH2ClientCSV(fileName: String):  List<Client> {
 
 
 fun backUpH2BatchJob(list: List<BatchJob>) {
+    val path = System.getProperty("user.dir")
+    println("Working Directory = $path")
+
+    val f = File(path, "backup")
+    if (!f.exists()) {
+        f.mkdir()
+    }
+
     val fout = FileOutputStream(bactchBackUp)
     val oos = ObjectOutputStream(fout)
     oos.writeObject(list)

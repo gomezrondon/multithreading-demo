@@ -1,0 +1,26 @@
+[
+  {
+  "name":"com.gomezrondon.multithreadingdemo.entities.BatchJob"
+  },
+  {
+    "name":"com.gomezrondon.multithreadingdemo.entities.BatchJobId"
+  },
+  {
+    "name":"java.math.BigDecimal"
+  },
+  {
+    "name":"java.lang.Long"
+  },
+  {
+    "name":"java.math.BigInteger"
+  },
+  {
+    "name":"java.lang.String"
+  },
+  {
+    "name":"java.lang.Number"
+  },
+  {
+    "name":"java.util.ArrayList"
+  }
+]

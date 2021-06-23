@@ -1,0 +1,21 @@
+[
+  {
+    "name":"com.gomezrondon.multithreadingdemo.entities.BatchJob",
+    "allDeclaredFields":true,
+    "allDeclaredMethods":true,
+    "allPublicMethods":true,
+    "allDeclaredConstructors":true
+  },
+  {
+    "name":"com.gomezrondon.multithreadingdemo.entities.BatchJobId",
+    "allDeclaredFields":true,
+    "allDeclaredMethods":true,
+    "allPublicMethods":true,
+    "methods":[{"name":"<init>","parameterTypes":[] }]
+  },{
+  "name" : "java.util.ArrayList",
+  "allDeclaredFields" : true,
+  "allDeclaredConstructors" : true,
+  "allPublicMethods":true
+}
+]

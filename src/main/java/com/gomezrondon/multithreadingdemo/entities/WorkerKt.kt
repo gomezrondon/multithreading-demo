@@ -16,7 +16,7 @@ class WorkerKt(val rowsPerBranch: Int = 0,
 )  {
 
     fun work()  =  runBlocking {
-        val faker = Faker(Locale.US)
+     //   val faker = Faker(Locale.US)
         val lastRecord = rowsPerBranch -1
         val atomicId = AtomicLong(0)
 
@@ -24,7 +24,7 @@ class WorkerKt(val rowsPerBranch: Int = 0,
             val jobs = (0..lastRecord).map {
                 GlobalScope.async {
                     val salary = getRandomSalary(46000, 250000)
-                    val client = Client(atomicId.getAndIncrement(), faker.idNumber().valid(), faker.name().fullName(), salary)
+                    val client = Client(atomicId.getAndIncrement(), "13987482", "javier", salary)
                     client
                 }//globalScope.async
             }

@@ -1,0 +1,11 @@
+version: '2.1'
+
+services:
+  multi-thread:
+    image: multithreading-demo:0.0.1-SNAPSHOT
+    environment:
+      - SPRING_PROFILES_ACTIVE=normal
+      - APP_TOTAL_RECORDS=100000
+      - APP_RESTORE=false
+    ports:
+      - 8080:8080
