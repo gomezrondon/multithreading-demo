@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -60,7 +59,7 @@ public class ProcessingServiceImp implements ProcessingService {
 
     public void ReSplitWorkLoad() {
         List<BatchJob> batchJobList = (List<BatchJob>) batchJobRepository.findAll();
-        List<BatchJob> BatchErrorList = batchJobList.stream().filter(x -> x.getStatus().equals(BatchStatus.ERROR.getValue())).collect(Collectors.toList());
+        List<BatchJob> BatchErrorList = batchJobList.stream().filter(x -> x.getStatus().equals(BatchStatus.ERROR.getValue())).toList();
 
         BatchErrorList.forEach(batchJob -> {
             Long lastElement = batchJob.getLastElement();
@@ -99,7 +98,7 @@ public class ProcessingServiceImp implements ProcessingService {
     public List<BatchJobId> setTheWorkTable(List<WorkRange> list) {
 
         BatchJob top = batchJobRepository.findLastId();
-        Long batchId = 1l;
+        Long batchId = 1L;
         if (top != null) {
             batchId = top.getBatchId() + 1;
         }
@@ -120,27 +119,25 @@ public class ProcessingServiceImp implements ProcessingService {
     @Override
     public BigDecimal startWork(List<BatchJobId> list, int coreCount) throws InterruptedException {
 
-        ExecutorService service = Executors.newVirtualThreadPerTaskExecutor();
-        List<Callable<BigDecimal>> tasks = new ArrayList<>();
-
-         int total = list.size();
-        for (BatchJobId batchJobId : list) {
-            tasks.add(new ProcessSalaryWorker(batchJobId, batchJobRepository, clientRepository, forceError, CHUNK_PERCENT));
+        List<Future<BigDecimal>> futures = null;
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<Callable<BigDecimal>> tasks = new ArrayList<>();
+            for (BatchJobId batchJobId : list) {
+                tasks.add(new ProcessSalaryWorker(batchJobId, batchJobRepository, clientRepository, forceError, CHUNK_PERCENT));
+            }
+            futures =  executor.invokeAll(tasks);
         }
 
-        List<Future<BigDecimal>> futures = service.invokeAll(tasks);
+
        BigDecimal reduce = futures.stream().map(future -> {
             try {
                 return future.get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
-            return BigDecimal.ZERO;
+           return BigDecimal.ZERO;
         }).reduce(BigDecimal::add).get();
 
-        service.shutdown();
         List<BatchJob> batchJobList = (List<BatchJob>) batchJobRepository.findAll();
         batchJobList.stream()
                 .filter(batchJob -> batchJob.getStatus().equals(BatchStatus.START.getValue()))

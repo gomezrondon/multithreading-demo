@@ -26,13 +26,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -153,22 +146,26 @@ public class Config {
                 log.info("=========== Generating Fake Data ========= ");
                 log.info(" ");
 
-
 //                var faker = new Faker(Locale.US);
                 var atomicId = new AtomicLong(0);
-                ExecutorService service = Executors.newVirtualThreadPerTaskExecutor();
-                List<Callable<Client>> tasks = new ArrayList<>();
+                var lista = new ArrayList<Thread>();
 
                 for (var i = 0; i < totalRecords; i++) {
-                    tasks.add(() -> {
+                    Thread thread = Thread.ofVirtual().start(() -> {
                         var salary = getRandomSalary(46000, 250000);
                         var client = new Client(atomicId.getAndIncrement(), "1254", "pepe", salary);
                         clientRepository.save(client);
-                        return null;
                     });
+                    lista.add(thread);
                 }
 
-                List<Future<Client>> futures = service.invokeAll(tasks);
+                lista.forEach(x -> {
+                    try {
+                        x.join();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
             }
 
@@ -179,14 +176,14 @@ public class Config {
          //   getCoreCount();
 
             List<WorkRange> workRanges = processingService.splitWorkLoad(coreCount);
-            workRanges.forEach(range -> log.info(String.valueOf(range)));
+//            workRanges.forEach(range -> log.info(String.valueOf(range)));
 
             log.info(" ");
             log.info("=============== Assign Work ========= ");
             log.info(" ");
             List<BatchJobId> batchJobMembers = processingService.setTheWorkTable(workRanges);
             List<BatchJob> batchTable = (List<BatchJob> )batchJobRepository.findAll();
-            batchTable.forEach(member -> log.info(String.valueOf(member)));
+           // batchTable.forEach(member -> log.info(String.valueOf(member)));
 
             log.info(" ");
             log.info("=============== Start Work ========= ");
@@ -205,7 +202,7 @@ public class Config {
                 log.info("========= Multi-Thread Calculation AVG Salary:  " + avg.setScale(2, RoundingMode.CEILING));
                 log.info(" ");
 
-                batchTable.forEach(member -> log.info(String.valueOf(member)));
+            //    batchTable.forEach(member -> log.info(String.valueOf(member)));
 
                 BigDecimal total = batchTable.stream()
                         .map(BatchJob::getSalaryTotalSum)
@@ -225,7 +222,7 @@ public class Config {
                 log.info("");
                 log.info("");
 
-                batchTable.forEach(member -> log.info(String.valueOf(member)));
+              //  batchTable.forEach(member -> log.info(String.valueOf(member)));
             }
             var stopTime = Instant.now();
            log.info(Duration.between(startTime, stopTime).toSeconds() +" - Seconds");
