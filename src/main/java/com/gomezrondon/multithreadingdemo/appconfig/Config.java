@@ -148,24 +148,22 @@ public class Config {
 
 //                var faker = new Faker(Locale.US);
                 var atomicId = new AtomicLong(0);
-                var lista = new ArrayList<Thread>();
+//                var lista = new ArrayList<Thread>();
 
-                for (var i = 0; i < totalRecords; i++) {
-                    Thread thread = Thread.ofVirtual().start(() -> {
-                        var salary = getRandomSalary(46000, 250000);
-                        var client = new Client(atomicId.getAndIncrement(), "1254", "pepe", salary);
-                        clientRepository.save(client);
-                    });
-                    lista.add(thread);
+                var threadList =  IntStream.range(0, totalRecords)
+                        .mapToObj(index -> Thread.ofVirtual().unstarted(() -> {
+                            var salary = getRandomSalary(46000, 250000);
+                            var client = new Client(atomicId.getAndIncrement(), "1254", "pepe", salary);
+                            clientRepository.save(client);
+                        })
+
+                        ).toList();
+
+                threadList.forEach(Thread::start);
+
+                for (Thread thread : threadList) {
+                    thread.join();
                 }
-
-                lista.forEach(x -> {
-                    try {
-                        x.join();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
 
             }
 
