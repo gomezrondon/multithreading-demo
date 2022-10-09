@@ -23,7 +23,7 @@ public class BatchJob implements Serializable {
     private String description;
     @Column(name = "init")
     private Long rangeIni;
-    @Column(name = "end")
+    @Column(name = "endvalue")
     private Long rangeEnd;
     @Column(name = "last_element")
     private Long lastElement;

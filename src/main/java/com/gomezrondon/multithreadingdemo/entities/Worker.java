@@ -1,6 +1,6 @@
 package com.gomezrondon.multithreadingdemo.entities;
 
-import com.github.javafaker.Faker;
+//import com.github.javafaker.Faker;
 import com.gomezrondon.multithreadingdemo.repository.ClientRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,14 +35,14 @@ public class Worker extends Thread implements Callable {
 
     private void work() {
         String name = Thread.currentThread().getName();
-        Faker faker = new Faker(Locale.US);
+//        Faker faker = new Faker(Locale.US);
         int lastRecord = rowsPerBranch;
 
 
         IntStream.range(0, rowsPerBranch).forEach(j -> {
             double salary = getRandomSalary(46_000, 250_000);
 
-            Client client = new Client( userCode.getAndIncrement(), faker.idNumber().valid(), faker.name().fullName(), salary);
+            Client client = new Client( userCode.getAndIncrement(), "4152", "javier", salary);
             repository.save(client);
             if (j % 10000 == 0 || lastRecord == j) { //peek every 10k records
                 log.info(client + "        thread: "+name);

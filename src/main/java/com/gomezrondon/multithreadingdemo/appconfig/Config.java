@@ -2,7 +2,7 @@ package com.gomezrondon.multithreadingdemo.appconfig;
 
 
 
-import com.github.javafaker.Faker;
+//import com.github.javafaker.Faker;
 import com.gomezrondon.fakedata.utils.BackupServiceKt;
 import com.gomezrondon.multithreadingdemo.entities.BatchJob;
 import com.gomezrondon.multithreadingdemo.entities.BatchJobId;
@@ -154,15 +154,15 @@ public class Config {
                 log.info(" ");
 
 
-                var faker = new Faker(Locale.US);
+//                var faker = new Faker(Locale.US);
                 var atomicId = new AtomicLong(0);
-                ExecutorService service = Executors.newVirtualThreadExecutor();
+                ExecutorService service = Executors.newVirtualThreadPerTaskExecutor();
                 List<Callable<Client>> tasks = new ArrayList<>();
 
                 for (var i = 0; i < totalRecords; i++) {
                     tasks.add(() -> {
                         var salary = getRandomSalary(46000, 250000);
-                        var client = new Client(atomicId.getAndIncrement(), faker.idNumber().valid(), faker.name().fullName(), salary);
+                        var client = new Client(atomicId.getAndIncrement(), "1254", "pepe", salary);
                         clientRepository.save(client);
                         return null;
                     });
