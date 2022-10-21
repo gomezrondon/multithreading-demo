@@ -119,24 +119,21 @@ public class ProcessingServiceImp implements ProcessingService {
     @Override
     public BigDecimal startWork(List<BatchJobId> list, int coreCount) throws InterruptedException {
 
-        List<Future<BigDecimal>> futures = null;
+        BigDecimal total = BigDecimal.ZERO;
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             List<Callable<BigDecimal>> tasks = new ArrayList<>();
             for (BatchJobId batchJobId : list) {
                 tasks.add(new ProcessSalaryWorker(batchJobId, batchJobRepository, clientRepository, forceError, CHUNK_PERCENT));
             }
-            futures =  executor.invokeAll(tasks);
+
+            for (Future<BigDecimal> future : executor.invokeAll(tasks)) {
+                total.add(future.get());
+            }
+
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
 
-
-       BigDecimal reduce = futures.stream().map(future -> {
-            try {
-                return future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-           return BigDecimal.ZERO;
-        }).reduce(BigDecimal::add).get();
 
         List<BatchJob> batchJobList = (List<BatchJob>) batchJobRepository.findAll();
         batchJobList.stream()
@@ -146,7 +143,7 @@ public class ProcessingServiceImp implements ProcessingService {
                     batchJobRepository.save(batchJob);
                 });
 
-        return reduce;
+        return total;
     }
 
     @Override
