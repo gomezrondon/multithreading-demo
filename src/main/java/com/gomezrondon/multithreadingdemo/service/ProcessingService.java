@@ -12,7 +12,7 @@ public interface ProcessingService {
 
      List<BatchJobId> setTheWorkTable(List<WorkRange> list);
 
-     BigDecimal startWork(List<BatchJobId> list, int coreCount) throws InterruptedException;
+     BigDecimal startWork(List<BatchJobId> list) throws InterruptedException;
 
      void reExecuteProcess();
 

@@ -117,7 +117,7 @@ public class ProcessingServiceImp implements ProcessingService {
     }
 
     @Override
-    public BigDecimal startWork(List<BatchJobId> list, int coreCount) throws InterruptedException {
+    public BigDecimal startWork(List<BatchJobId> list) throws InterruptedException {
 
         BigDecimal total = BigDecimal.ZERO;
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {

@@ -96,7 +96,7 @@ public class Config {
                     .map(batchJob -> new BatchJobId(batchJob.getBatchId(), batchJob.getThreadId()))
                     .collect(Collectors.toList());
 
-            processingService.startWork(batchJobMembers, coreCount);
+            processingService.startWork(batchJobMembers);
             // Check if everything ended correctly
             batchTable = (List<BatchJob> )batchJobRepository.findAll();
             var countBatch = batchTable.stream().map(BatchJob::getStatus).filter(t -> t.equals(BatchStatus.FINISHED.getValue())).count();
@@ -186,7 +186,7 @@ public class Config {
             log.info(" ");
             log.info("=============== Start Work ========= ");
             log.info(" ");
-            BigDecimal totalSum = processingService.startWork(batchJobMembers, coreCount);
+            BigDecimal totalSum = processingService.startWork(batchJobMembers);
            // Check if everything ended correctly
               batchTable = (List<BatchJob> )batchJobRepository.findAll();
             var countBatch = batchTable.stream().map(BatchJob::getStatus).filter(t -> t.equals(BatchStatus.FINISHED.getValue())).count();
